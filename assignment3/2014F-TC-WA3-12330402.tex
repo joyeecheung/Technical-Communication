@@ -1,0 +1,207 @@
+\documentclass[conference]{IEEEtran}
+
+%-----------------Hyperlink Packages--------------------
+\usepackage{hyperref}
+\hypersetup{
+	 colorlinks   = true,
+     citecolor    = black,
+     linkcolor    = black,
+     urlcolor     = black
+}
+%-----------------Figure Packages--------------------
+\usepackage{graphicx}                       % For figures
+\usepackage{stfloats}
+\usepackage[tight,footnotesize]{subfigure}  % Create subfigures, ie 1A, 1B
+%\usepackage{epsfig} % for postscript graphics files
+%------------------Math Packages------------------------
+\usepackage{amssymb,amsmath}
+\usepackage{textcomp}
+\usepackage{mdwmath}
+\usepackage{mdwtab}
+\usepackage{eqparbox}
+%------------------Table Packages-----------------------
+\usepackage{rotating}                     % Used to rotate tables
+\usepackage{array}                        % Fixed column widths for tables
+%-----------------Algorithm Packages--------------------
+\usepackage{listings}                     % Source code
+\usepackage{algorithm}                    % Pseudo Code
+\usepackage[noend]{algpseudocode}
+%---------------------------------------------------------
+\usepackage{paralist}
+
+\title{\LARGE \bf A Survey on Data Clustering}
+\author{
+Qiuyi Zhang \\
+School of Software \\
+Sun Yat-Sen University \\
+Guangzhou, Guangdong Province, China \\
+{\tt \href{mailto:zhangqy37@mail2.sysu.edu.cn}{zhangqy37@mail2.sysu.edu.cn}}
+}
+%---------------------------------------------------------
+\begin{document}
+\maketitle
+%-------------------Abstract and keywords-----------------
+\begin{abstract}
+Discovering closely related groups in the data set is a prevalent topic in data analysis. Data clustering is the technique of finding natural groups, or clusters, in a data set of patterns, points, or objects. In this paper, we present an overview of well-known clustering algorithms, review common methods for evaluating clustering algorithms, and describe some important applications of data clustering.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Data Clustering, Survey, Applications, Cluster Evaluation
+\end{IEEEkeywords}
+%----------------------Introduction-------------------------
+\section{INTRODUCTION}\label{sec:Introduction}
+\subsection{Background}
+Development in computer science and software engineering has made it possible for huge amount of data to be generated and stored. The popularity of the Internet also leads to the creation and sharing of numerous high-volume data sets. The dramatic increase in the available data calls for effective methods to organize, analyze, and summarize data. 
+
+\subsection{What is data clustering?}
+According to the Merriam-Webster dictionary \cite{webster2006merriam}, cluster analysis is ``a statistical classification technique for discovering whether the individuals of a population fall into different groups by making quantitative comparisons of multiple characteristics.'' In short, the goal of data clustering is to find natural groupings in the data set. 
+
+\subsection{Development}
+As a commonly used technique in computer science, data clustering also has a long and rich history in other areas such as biology, medical research, geology, and marketing. This explains the considerable number of clustering algorithms and their evaluation studies available in the literature. In this paper, we introduce three of the most important clustering algorithms: \textit{hierarchical clustering}, \textit{partitional clustering}, and \textit{density-based clustering}. We then review three criteria for evaluating clustering algorithms: \textit{external criteria}, \textit{internal criteria}, and \textit{relative criteria}.
+
+\subsection{Application}
+Although data clustering has a wide application, we will focus on its application in computer science. Clustering has been used in:
+\begin{itemize}
+\item \textbf{Image Processing}: to partition a digital image into multiple segments, improve the quality of color reduction, and achieve better image compression.
+\item \textbf{Object and Feature Recognition}: to identify object, detect anomalies, and recognize feature in data.
+\item \textbf{Information Retrieval}: to classify documents, improve search results, and construct thesauri.
+\end{itemize}
+
+%----------------------------------------------------------
+\section{DATA CLUSTERING ALGORITHMS}
+\subsection{Hierarchical Clustering}
+Hierarchical clustering first organizes data objects into clusters, and then repeatedly merges these clusters into larger ones, until a desired hierarchy is generated. The representation of this hierarchy is usually a tree, called \textit{dendrogram}, with data objects being the leaves, nonempty clusters being the interior nodes. This method enables the exploration of data at different levels of granularity.
+
+% \cite{steinbach2000comparison}
+There are two main categories of hierarchical clustering algorithms: \textit{agglomerative} (the bottom-up approach) and \textit{divisive} (the top-down approach) . In an agglomerative algorithm, each data point is initially a cluster itself. These clusters are then merged repeatedly to build up the final hierarchy. On the other hand, in a divisive algorithm, data points are initially assigned to one colossal cluster. At each step of the algorithm, existing clusters will be split recursively to obtain a better hierarchy.
+
+Between these two approaches, agglomerative clustering is more popular in application. It is usually implemented using single-linkage (called SLINK algorithm) or complete-linkage (called CLINK algorithm). When using single-linkage, we merge the clusters with the smallest minimum pairwise distance, which means that the cluster resulted from merging will have the smallest diameter \cite{defays1977efficient}. When using complete-linkage, we merge the clusters with smallest maximum pairwise distance, therefore the closest points in the the clusters to be merged should have the smallest distance \cite{sibson1973slink}. 
+
+In complete-linkage clustering, the best cluster to merge at a step is not guaranteed to be the same as the one at the next step. This is because the diameter of the resulting cluster is not a local property, in other words, it can change during merging. Therefore, complete-link clustering is more difficult and more expensive than single-link clustering.
+
+Although hierarchical clustering is one of the theoretical foundations of data clustering, some consider it obsolete \cite{jain2012survey}. It did, however, provide inspiration for later methods such as density based clustering. Numerous efforts have been put into its improvement, one of them is the CURE algorithm \cite{guha1998cure}.
+
+The CURE algorithm starts with choosing $c$ well-scattered points in each cluster (initially $c = 1$ i.e. each point is a cluster itself). Then, these points will be shrunk towards the center of the cluster by a fraction $\alpha$ to determine $c$ representative points in each cluster. At each step of CURE's hierarchical clustering algorithm, clusters with the closest pair of representatives will be merged. In this way, CURE correctly identifies the clusters while being less sensitive to outliers.
+
+To speed up CURE, we can first do a random sampling on the dataset and partition the sample into $p$ partitions. After partitioning, we cluster these partitions, then cluster the result again, but only store the representatives in the second pass. Then we can assign other data points to the clusters with representatives closest to them, and start to run the hierarchical algorithm.
+
+Assume the input size is $n$, the space complexity of CURE is $O(n)$. The worst-case time complexity is $O(n^{2}\log n)$, which can be further reduced to $O(n^{2})$ using sampling, partitioning and labeling as optimizations \cite{gan2007data}. Therefore, CURE, unlike those less-efficient hierarchical algorithms, can be used in large databases.
+
+
+%In addition to DBSCAN, other improvement of hierarchical clustering worth noting include BIRCH, Chameleon, DIANA\cite{kaufman2009finding}, and DISMEA.
+
+\subsection{Partitional Clustering}
+Instead of producing a clustering structure, like the tree generated by a hierarchical algorithm, a partitional clustering algorithm outputs the partition of the data. Partitional algorithms have advantages in applications with large data sets, where a hierarchical clustering algorithm may not be efficient enough.
+
+The \textit{k-means algorithm}, which is a type of partitional clustering algorithms, is the most popular clustering algorithm used in scientific and industrial applications \cite{wang2006encyclopedia}. It refers to a family of algorithms for solving the \textit{k-means} problem. This name, first proposed by James MacQueen in 1967 \cite{macqueen1967some}, comes from representing each of the $k$ clusters $C_{j}$ by the mean (or weighted average) $c_{j}$ of its data points.
+
+When the number of clusters is fixed to $k$, the \textit{k-means problem} is an optimization problem of finding
+\begin{enumerate}
+\item $k$ cluster centers
+\item the objects belongs to each cluster
+\end{enumerate}
+to minimize the squared distance of each point to its closest \textit{centroid} (the center, or mean, of the cluster).
+
+In mathematical terms, the goal is find:
+$$ \underset{\mathbf{S}}{\operatorname{arg\,min}} \sum_{i=1}^{k} \sum_{\mathbf x \in S_i} \left\| \mathbf x - \boldsymbol\mu_i \right\|^2
+$$
+where $n$ is the number of points, $k$ is the number of clusters, $S = \{S_1, S_2, ... S_k\}$ represents points in each cluster, $\mu_i$ is the mean of points in $S_i$.
+
+The optimization problem is known to be NP-hard \cite{mahajan2009planar}, thus algorithms solving this problem usually search only for approximate solutions. The standard k-means algorithm usually refers to the one proposed by Stuart P. Lloyd \cite{lloyd1982least}.
+
+The popularity of the k-means algorithm comes from its simplicity and efficiency. Its time complexity is $O(nkt)$, with $n$ being the number of objects, $k$ being the number of clusters, and $t$ being the number of iterations \cite{dong2009k}. This algorithm is, however, only capable of finding a local optimum. It needs multiple runs with different initializations to produce a good result.
+
+\subsection{Density-based Clustering}
+In density-based clustering, clusters are defined as regions with higher density than the remainder in the data set. The low-density regions surrounding the higher density regions are considered as noise.
+
+One of the most popular density-based clustering algorithms is DBSCAN \cite{ester1996density}. It uses \textit{density-reachability} as its cluster model. In this model, a point $x$ is called \textit{directly density-reachable} from another point $y$ if:
+
+\begin{enumerate}
+	\item Their distance is not larger than a given value $\epsilon$.
+	\item The number of points within the neighborhood of $\epsilon$ of $y$ is larger than or equal to a given value $N_{min}$.
+\end{enumerate}
+
+In addition, two points $x$ and $y$ are called \textit{density-connected} if there exists a point $z$ such that both $x$ and $y$ are directly density-reachable from $z$. Then a cluster is a set of density-connected points plus all points that are \textit{directly density-reachable} from them.
+
+In DBSCAN, we first randomly choose an unvisited point, and then visit its neighboring points whose distance from this point is not larger than $\epsilon$. If there are no less than $N_{min}$ such neighbors, we will use this point along with its neighborhood as our first cluster. Otherwise, we randomly pick another point and start again.
+
+If a point is directly density-reachable from another point that belongs to some cluster, its $\epsilon$-neighborhood must also be part of that cluster. In this way, we can continuously discover data points that are density-connected to the starting point. When there are no more points to be connected, we move on to another unvisited point, and go on until there is no more points unvisited.
+
+The admissible complexity of DBSCAN is one of the reasons why it is so popular. Assume that the average time complexity of a single region query is $O(\log n)$, the complexity of DBSCAN would be just $O(n \log n)$ \cite{ester1996density}. Another reason is that there is no need to run it multiple times to get a better result, since it will find essentially the same clusters every time.
+
+%----------------------------------------------------------
+\section{EVALUATION OF CLUSTERING RESULTS} \label{sec:evaluation}
+
+There are three categories of criteria used in the evaluation of clustering results: \textit{external criteria}, \textit{internal criteria}, and \textit{relative criteria}. The first two are computationally expensive because they use statistical testing, while relative criteria, which do not need statistical tests, are more efficient. In this paper, we will give a basic description of these three criteria.
+
+\subsection{External Criteria}
+When using external criteria, we compare the output of the clustering algorithm with a pre-specified clustering structure. In general, there are two kinds of structure used in external criteria:
+
+\begin{enumerate}
+\item a partition built on human intuition
+\item a proximity matrix $P$ consisting of distances between each pair of data points
+\end{enumerate}
+
+Both approaches use the \textit{Monte Carlo} method (repeat the evaluation multiple times) to compute the probability density function of cluster validity. They are detailedly discussed in \cite{Halkidi:2002:CVM:565117.565124}.
+
+\subsection{Internal Criteria}
+In the internal criteria approach, we evaluate the output of a algorithm with only quantities and attributes inherited from the original data. There are two situations:
+
+\begin{enumerate}
+\item When the output of the algorithm is a hierarchy, we compute the proximity levels of each pair of data points when they are assigned to the same cluster for the first time, and use the proximity levels to construct a \textit{cophenetic matrix} $P_c$. Then we compare $P_c$ with the original proximity matrix $P$ to evaluate the algorithm.
+\item When the output of the algorithm is not a hierarchy, we compare a cluster membership matrix to $P$.
+\end{enumerate}
+
+The Monte Carlo method is also used in the internal criteria for evaluation. \cite{Halkidi:2002:CVM:565117.565124} and \cite{milligan1981monte} describe the internal criteria in detail.
+
+\subsection{Relative Criteria}
+The basic idea of these criteria is to run the algorithm with different parameters, use a pre-defined criterion to determine the best clustering result, and then use this result for evaluation. Depending on whether the number of clusters $n_c$ is a parameter, there are two ways to determine the best clustering result.
+
+\begin{enumerate}
+\item When $n_c$ is not a parameter, we run the algorithm with a wide range of parameters, and choose the largest range for which $n_c$ remains constant. Then we use the middle of this range as the optimal parameters.
+\item When $n_c$ is a parameter, we run the algorithm  with different combinations of other parameters for every possible $n_c$, then use a validity index to choose the best parameter set for each $n_c$. Finally, we choose the best parameters among the previous results.
+\end{enumerate}
+
+A more detailed discussion of the relative criteria can be found in \cite{Halkidi:2002:CVC:601858.601862}. \cite{bezdek1998some} compares some validity indices commonly used in this approach.
+
+%----------------------------------------------------------
+\section{APPLICATIONS OF DATA CLUSTERING} \label{sec:application}
+Data clustering has been widely used in different fields. In the following sections, we describe its application in some disciplines of computer science.
+
+\subsection{Image Processing}
+In image processing, clustering is commonly used in image segmentation i.e. dividing a digital image into distinct regions \cite{haralick1985image}. In fact, image segmentation can be viewed as a clustering process. The difference between them is that in clustering, we group the data in a measurement(distance) space, but in image segmentation, the grouping is done
+on the spatial domain of the image. There is, however, an interplay between the groups in the measurement space and the groups on the spatial domain of the image.
+
+Clustering is also useful in color quantazation, that is, reducing the color of an image, by helping to group colors and find representative colors in the image \cite{scheunders1997comparison}. From the pattern recognition perspective, color quantization can be viewed as an unsupervised classification of the 3D color space, where each class has one representative color. Thus by using clustering to find better representatives, we can better quantize the colors of an image.
+
+Some image compression methods also use clustering to identify the patterns in the image to achieve better compression \cite{jain1981image}.
+
+\subsection{Object and Feature Recognition}
+By grouping object views into classes based on the similarity of shape or spectral features, clustering can improve the recognition of objects, borders in images and videos \cite{lowe2004distinctive}. In addtion, clustering features of audios can help to recognize scences and events in audios and videos \cite{clarkson1999unsupervised} \cite{liu1998audio}. Clustering is also helpful when detecting features and characters in handwritten text \cite{lu1995machine} \cite{yin2009handwritten}.
+
+\subsection{Information Retrieval}
+In information retrieval, clustering is commonly used to classify documents \cite{willett1988recent} \cite{steinbach2000comparison}. By producing clusters based on keywords in documents, they can be sorted into appropriate categories effectively and automatically. Hierarchical clustering is particularly useful in document classfication since the hierarchy of clusters corresponds to the hierarchy of categories, thus providing a better representation of the classfication.
+
+Search engines aware of the clusters in the documents can produce better results. Since clustering, either on words or on hyperlinks \cite{weiss1996hypursuit} \cite{brin1998anatomy}, can discover the relationship between documents, the search engine can use this information to present the search results with a better ranking. In addition, clusters can be good representations of information themselves. By providing clusters of search results to the users, they can browse the results and find what they are looking for more effectively. \cite{cutting1992scatter}.
+
+Clustering can also aid in the construction of thesauri to address other issues in information retrieval \cite{lin1998automatic}.
+
+%------------------------Conclusion------------------------
+\section{CONCLUSION} \label{sec:Conclusion}
+
+In order to learn a new object or to understand a new phenomenon, we always try to look for similarities between the new and the old, and further group them to construct a better knowledge system. Therefore, the task of organizing data into meaningful groups arises frequently in various scientific fields, which explains the continued appearance of data clustering in the literature. 
+
+Three of the most common approaches of data clustering are hierarchical clustering, partitional clustering, and density-based clustering. Hierarchical clustering contributed to the early development of cluster analysis, and the resulting hierarchy can be a very effective representation of information itself. Nonetheless, this approach is usually too expensive computationally. On the other hand, partitional clustering algorithms, such as the classic k-means algorithm, are simple and fast, but the quality of their result varies. They tend to find local optima, which makes them less reliable. Density-based clustering is admissible in performance while providing a stable output, and it does not require the number of clusters a priori, which makes it popular in many scientific fields. These clustering techniques have been widely used in numerous scientific and industrial applications, and have greatly improved the analysis process for numerous research studies.
+
+To rate the degree of confidence for the clustering results produced by various algorithms, we need effective evaluation criteria for them. There are three categories of evaluation criteria for clustering algorithms: external criteria, internal criteria, and relative criteria. The first two are based on statistical testing, therefore have high computational costs. Relative criteria do not involve statistical tests, thus they are more efficient than the others.
+
+It is, however, important to understand that the output of cluster analysis only suggests hypotheses. For many data sets, there is no \textit{right} clustering. While there are numerous clustering algorithms developed and new ones continue to emerge, no single clustering algorithm can dominate other algorithms across all application areas. Similarly, there is no best evaluation criterion for a specific clustering task. Most of the time, it is necessary to do cluster analysis with different existing clustering methods and criteria, or develop a new one, then choose the one that can provide the desired accuracy, precision, and efficiency.
+
+%-----------------------Acknowlegement----------------------
+\section*{Acknowledgment}
+
+We wish to acknowledge the Sun Yat-Sen University for supporting this work. We are also grateful for the generosity of our colleagues who have read the manuscript drafts, made many suggestions to improve the quality of them, and provided useful materials that we have incorporated into this paper. 
+
+\bibliographystyle{IEEEtran}
+\bibliography{clustering}
+\end{document}

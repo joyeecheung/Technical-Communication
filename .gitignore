@@ -1,0 +1,8 @@
+*/*
+*.*
+
+!.gitignore
+!assignment*/*.tex
+!assignment*/*.bib
+!final/*.tex
+!final/*.bib
